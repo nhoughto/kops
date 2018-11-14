@@ -81,13 +81,14 @@ download-or-bust() {
       # CoreOS runs this script in a container without which (but has curl)
       # Note also that busybox wget doesn't support wget --version, but busybox doesn't normally have curl
       # So we default to wget unless we see curl
+      # --insecure options are used to allow custom cacerts bootstrapping, the binary is checked against NODEUP_HASH anyway.
       elif [[ $(curl --version) ]]; then
-        if ! curl -f --ipv4 -Lo "${file}" --connect-timeout 20 --retry 6 --retry-delay 10 "${url}"; then
+        if ! curl --insecure -f --ipv4 -Lo "${file}" --connect-timeout 20 --retry 6 --retry-delay 10 "${url}"; then
           echo "== Failed to curl ${url}. Retrying. =="
           break
         fi
       else
-        if ! wget --inet4-only -O "${file}" --connect-timeout=20 --tries=6 --wait=10 "${url}"; then
+        if ! wget --no-check-certificate --inet4-only -O "${file}" --connect-timeout=20 --tries=6 --wait=10 "${url}"; then
           echo "== Failed to wget ${url}. Retrying. =="
           break
         fi
